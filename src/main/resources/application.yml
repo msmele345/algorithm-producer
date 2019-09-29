@@ -1,0 +1,12 @@
+server:
+  port : 8081
+
+spring:
+  kafka:
+    consumer:
+      group-id: algos
+#      auto-offset-reset: earliest
+    bootstrap-servers: localhost:9092
+
+kafka:
+  bootstrapAddress: localhost:9092

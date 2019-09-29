@@ -1,0 +1,25 @@
+version: "3.2"
+services:
+  zookeeper-1:
+    container_name: zookeeper-1
+    hostname: zookeeper-1.vnet
+    image: zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      - SERVICE_2181_NAME=zookeeper
+      - SERVICE_2888_IGNORE=true
+      - SERVICE_3888_IGNORE=true
+    #    command: -server 1 1 vnet
+    healthcheck:
+      test: ["CMD", "./bin/zkServer.sh", "status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  default:
+    external:
+      name: vnet
+
+

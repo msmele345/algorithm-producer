@@ -1,0 +1,22 @@
+version: "3.2"
+services:
+  kafka-1:
+    container_name: kafka-1
+    hostname: kafka-1.vnet
+    image: wurstmeister/kafka #double check
+    volumes:
+      - ./hell_world:/var/www/html/hell_world  #change to local file name
+      - ./palindrome:/var/www/html/palindrome   #change to local file name
+    ports:
+      - 9092:9092
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper-1.vnet:2181
+      - KAFKA_CREATE_TOPICS=algorithm_complete:1:1,dummy:1:1
+      - KAFKA_ADVERTISED_HOST_NAME=localhost
+      - KAFKA_ADVERTISED_PORT=9092
+      - KAFKA_BROKER_ID=0
+
+networks:
+  default:
+    external:
+      name: vnet
