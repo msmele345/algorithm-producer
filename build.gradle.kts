@@ -15,16 +15,18 @@ repositories {
 	mavenCentral()
 }
 
+//	compile ("org.apache.kafka:kafka-clients:2.0.0") //double check
 dependencies {
+	compile("org.springframework:spring-beans")
+	compile("org.springframework:spring-context")
 	compile ("com.github.javafaker:javafaker:0.15")
-	compile ("org.apache.kafka:kafka-clients:2.0.0") //double check
 	compile("org.springframework.integration:spring-integration-kafka:3.1.5.RELEASE")
+	compile("org.springframework.kafka:spring-kafka:2.2.7.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-integration")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.springframework.integration:spring-integration-file")
 	testCompile ("com.nhaarman:mockito-kotlin:0.9.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
