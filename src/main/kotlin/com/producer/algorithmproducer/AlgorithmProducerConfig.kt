@@ -103,24 +103,7 @@ class AlgorithmProducerConfig {
             .log("FINISHED WITH PUB SUB")
             .get()
     }
-
-    @Bean
-    @ServiceActivator(inputChannel = "errorQueue", outputChannel = "errorAnalyzer")
-    fun handleErrors(): ErrorHandler {
-        println("ERRRRRRRROOOOOOOORRRRRRRRRRRR&&&&&&&")
-        return ErrorHandler { thrownException, data ->
-            println("ERROR MESSAGE")
-            println(thrownException.localizedMessage)
-            println("ERROR KEY")
-            println(data.key())
-            println("ERROR DATA")
-            println(data.value())
-            println("ERROR HEADERS")
-            println(data.headers())
-        }
-    }
-
-
+    
     //sends messages received from the ProducingChannel towards a topic.
     private fun kafkaMessageHandler(producerFactory: ProducerFactory<String, String>, topic: String) =
         Kafka.outboundChannelAdapter(producerFactory)
