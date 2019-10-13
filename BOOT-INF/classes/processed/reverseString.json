@@ -1,0 +1,3 @@
+{"name": "reverseString", "codeSnippet": "fun reverseString(str: String) : String = str.reverse() ", "category": "EASY", "isSolved": true}
+
+

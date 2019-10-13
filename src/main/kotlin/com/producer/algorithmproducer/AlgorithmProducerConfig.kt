@@ -10,7 +10,9 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.integration.IntegrationMessageHeaderAccessor
+import org.springframework.integration.annotation.ServiceActivator
 import org.springframework.integration.channel.DirectChannel
+import org.springframework.integration.core.MessagingTemplate
 import org.springframework.integration.dsl.IntegrationFlow
 import org.springframework.integration.dsl.IntegrationFlows
 import org.springframework.integration.dsl.Pollers
@@ -20,6 +22,7 @@ import org.springframework.integration.kafka.outbound.KafkaProducerMessageHandle
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
+import org.springframework.kafka.listener.ErrorHandler
 import org.springframework.kafka.support.DefaultKafkaHeaderMapper
 import java.io.File
 import java.util.HashMap
@@ -39,6 +42,11 @@ class AlgorithmProducerConfig {
     }
 
     @Bean
+    fun messagingTemplate(): MessagingTemplate {
+        return MessagingTemplate()
+    }
+
+    @Bean
     fun mapper(): DefaultKafkaHeaderMapper {
         return DefaultKafkaHeaderMapper()
     }
@@ -54,6 +62,7 @@ class AlgorithmProducerConfig {
             put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress)
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java)
+            put(ProducerConfig.LINGER_MS_CONFIG, 1)
 
         }
         return DefaultKafkaProducerFactory(configProps)
@@ -76,7 +85,7 @@ class AlgorithmProducerConfig {
         return IntegrationFlows
             .from("toKafkaInput")
             .log("starting KAFKA FLOW")
-            .split<String>({ p -> Stream.generate { p }.limit(101) }, null)
+            .split<String>({ p -> Stream.generate { p }.limit(2) }, null) //check the size again
             .publishSubscribeChannel { channel ->
                 channel.subscribe { sf ->
                     sf.handle(
@@ -95,7 +104,24 @@ class AlgorithmProducerConfig {
             .get()
     }
 
+    @Bean
+    @ServiceActivator(inputChannel = "errorQueue", outputChannel = "errorAnalyzer")
+    fun handleErrors(): ErrorHandler {
+        println("ERRRRRRRROOOOOOOORRRRRRRRRRRR&&&&&&&")
+        return ErrorHandler { thrownException, data ->
+            println("ERROR MESSAGE")
+            println(thrownException.localizedMessage)
+            println("ERROR KEY")
+            println(data.key())
+            println("ERROR DATA")
+            println(data.value())
+            println("ERROR HEADERS")
+            println(data.headers())
+        }
+    }
 
+
+    //sends messages received from the ProducingChannel towards a topic.
     private fun kafkaMessageHandler(producerFactory: ProducerFactory<String, String>, topic: String) =
         Kafka.outboundChannelAdapter(producerFactory)
             .messageKey<Any> { m -> m.headers[IntegrationMessageHeaderAccessor.SEQUENCE_NUMBER].toString() }
@@ -105,7 +131,6 @@ class AlgorithmProducerConfig {
             .topicExpression("headers[kafka_topic] ?: '$topic'")
             .configureKafkaTemplate { t -> t.id("kafkaTemplate:$topic") }
             .sendFailureChannel(errorQueue())
-
 }
 
 
