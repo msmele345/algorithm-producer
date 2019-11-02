@@ -2,15 +2,11 @@ package com.producer.algorithmproducer
 
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import org.springframework.integration.IntegrationMessageHeaderAccessor
-import org.springframework.integration.annotation.ServiceActivator
 import org.springframework.integration.channel.DirectChannel
 import org.springframework.integration.core.MessagingTemplate
 import org.springframework.integration.dsl.IntegrationFlow
@@ -18,14 +14,12 @@ import org.springframework.integration.dsl.IntegrationFlows
 import org.springframework.integration.dsl.Pollers
 import org.springframework.integration.file.dsl.Files
 import org.springframework.integration.kafka.dsl.Kafka
-import org.springframework.integration.kafka.outbound.KafkaProducerMessageHandler
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
-import org.springframework.kafka.listener.ErrorHandler
 import org.springframework.kafka.support.DefaultKafkaHeaderMapper
 import java.io.File
-import java.util.HashMap
+import java.util.*
 import java.util.stream.Stream
 
 @Configuration
@@ -40,6 +34,7 @@ class AlgorithmProducerConfig {
     fun errorQueue(): DirectChannel {
         return DirectChannel()
     }
+
 
     @Bean
     fun messagingTemplate(): MessagingTemplate {
@@ -68,6 +63,7 @@ class AlgorithmProducerConfig {
         return DefaultKafkaProducerFactory(configProps)
     }
 
+    //inbound adapter. Reads from static files and publishes messages to kafka input channel
     @Bean
     fun integrationFlow(): IntegrationFlow {
         return IntegrationFlows.from(
@@ -103,7 +99,7 @@ class AlgorithmProducerConfig {
             .log("FINISHED WITH PUB SUB")
             .get()
     }
-    
+
     //sends messages received from the ProducingChannel towards a topic.
     private fun kafkaMessageHandler(producerFactory: ProducerFactory<String, String>, topic: String) =
         Kafka.outboundChannelAdapter(producerFactory)
@@ -115,25 +111,3 @@ class AlgorithmProducerConfig {
             .configureKafkaTemplate { t -> t.id("kafkaTemplate:$topic") }
             .sendFailureChannel(errorQueue())
 }
-
-
-//TODO continue to work on fitting this in
-//    @Bean
-//    fun sendToKafkaFlow() =
-//        IntegrationFlow { flow ->
-//            flow.split<String>({ p -> Stream.generate { p }.limit(101) }, null) //double check if this is needed
-//                .publishSubscribeChannel { channel ->
-//                    channel.subscribe { sf ->
-//                        sf.handle(
-//                            kafkaMessageHandler(producerFactory(), "algorithm_complete")
-//                                .timestampExpression("T(Long).valueOf('1487694048633')")
-//                        ) { e -> e.id("kafkaProducer1") }
-//                    }
-//                    channel.subscribe { sf ->
-//                        sf.handle(
-//                            kafkaMessageHandler(producerFactory(), "dummy")
-//                                .timestamp<Any> { _ -> 1487694048644L }
-//                        ) { e -> e.id("kafkaProducer2") }
-//                    }
-//                }
-//        }

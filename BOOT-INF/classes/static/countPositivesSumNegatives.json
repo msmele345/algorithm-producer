@@ -1,0 +1,1 @@
+{ "name" : "countPositivesSumNegatives", "codeSnippet" : "\"\"\"\nfun countPositivesSumNegatives(inputArray: Array<Int>): Array<Int> {\nreturn when {\ninputArray.isEmpty() -> emptyArray()\nelse -> {\nval (positives, negatives) = inputArray.partition { it > 0 }\narrayOf(positives.count(), negatives.sum())\n}\n}\n}\n\"\"\".trimIndent()", "category" : "EASY", "isSolved" : true }

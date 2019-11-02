@@ -1,0 +1,1 @@
+{ "name" : "findAverage", "codeSnippet" : "fun findAverage(num1: Int, num2: Int) : Int = listOf(num1, num2).average()", "category" : "MEDIUM", "isSolved" : true }
