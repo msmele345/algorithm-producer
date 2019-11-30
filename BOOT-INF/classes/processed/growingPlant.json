@@ -1,0 +1,1 @@
+{"name": "growingPlant", "codeSnippet": "\"\"fun growingPlant(upSpeed: Int, downSpeed: Int, desiredHeight: Int): Int =\nwhen {\n(upSpeed > desiredHeight) -> 1\n else -> desiredHeight / (upSpeed - downSpeed)\n}\n\"", "category": "EASY", "isSolved": true}

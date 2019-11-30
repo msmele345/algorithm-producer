@@ -1,0 +1,1 @@
+{"name": "countDuplicates", "codeSnippet": "\nfun countDuplicates(inputArray: Array<String>): Int { fun countDuplicates(inputArray: Array<String> : Int = (inputArray.distinct()) - (inputArray.count()) }\n  }", "category": "MEDIUM", "isSolved": true}
