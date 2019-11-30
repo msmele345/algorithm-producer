@@ -1,0 +1,64 @@
+version: "3.2"
+services:
+  zookeeper-1:
+    container_name: zookeeper-1
+    hostname: zookeeper-1.vnet
+    image: zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      - SERVICE_2181_NAME=zookeeper
+      - SERVICE_2888_IGNORE=true
+      - SERVICE_3888_IGNORE=true
+
+    #    command: -server 1 1 vnet
+    healthcheck:
+      test: ["CMD", "./bin/zkServer.sh", "status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  mongodb-1:
+    depends_on:
+      - kafka-1
+    image: mongo
+    container_name: mongodb-1
+    hostname: mongodb-1.vnet
+    restart: always
+    ports:
+      - 27017:27017
+
+  kafka-1:
+    depends_on:
+      - zookeeper-1
+    container_name: kafka-1
+    hostname: kafka-1.vnet
+    image: wurstmeister/kafka #double check
+    volumes:
+      - ./hell_world:/var/www/html/hell_world  #change to local file name
+      - ./palindrome:/var/www/html/palindrome   #change to local file name
+    ports:
+      - 9092:9092
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper-1.vnet:2181
+      - KAFKA_CREATE_TOPICS=algorithm_complete:1:2,dummy:1:2
+      - KAFKA_ADVERTISED_HOST_NAME=localhost
+      - KAFKA_ADVERTISED_PORT=9092
+      - KAFKA_BROKER_ID=0
+
+  rabbitmq:
+    container_name: rabbit1
+    hostname: rabbit1.vnet
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    image: rabbitmq:3.5.3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+networks:
+  default:
+    external:
+      name: vnet
+
